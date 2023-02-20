@@ -5,10 +5,13 @@
     "password":"your-password"
   },
   "lineworks": {
-    "apiId": "your-apiId",
-    "consumerKey": "your-consumerKey",
-    "token": "your-token",
-    "toParentKey": "your-toParentKey",
-    "resourceLocation": 111111
+    "clientId": "your-app-clientId",
+    "clientSecret": "your-app-clientSevret",
+    "redirectUrl": "your-googleCloudFunctionUrl",
+    "scope": "file",
+    "csrfState": "your-state",
+    "accessToken": "your-access_token",
+    "sharedriveId": "your-sharedriveId",
+    "fileId": "your-sharedriveFolderId"
   }
 }
