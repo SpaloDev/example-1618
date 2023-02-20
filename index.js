@@ -33,7 +33,10 @@ async function saveFiles(auth) {
     console.log("Downloaded: " + fileName)
 
     // save
-    const driveFile = await drive.save(conf.lineworks, res.data, fileName)
+    const driveFile = await drive.save(conf.lineworks, {
+      name: fileName,
+      data: res.data
+    })
 
     console.log("Saved: " + driveFile)
 
