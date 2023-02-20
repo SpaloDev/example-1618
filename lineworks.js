@@ -1,44 +1,82 @@
+/**
+ * lineworks functions
+ */
 
-/* lineworks functions */
+const axios = require('axios');
+const FormData = require('form-data');
 
-const superagent = require('superagent')
 
-async function save(config, buffer, fileName) {
+async function save(lwConfig, file) {
 
   try {
 
-    const url = `https://file.drive.worksmobile.com/drive/rl/${config.resourceLocation}/v2/files`
-    
-    const res = await superagent
-      .post( url )
-      .set('X-DRIVE-API-TYPE', 'reseller-api')
-      .set('consumerkey', config.consumerKey)
-      .set('Authorization', `Bearer ${config.token}`)
-      .type('form-data')
-      .field('toParentKey', config.toParentKey)
-      .field('resourceName', fileName)
-      .attach('FileData', buffer, fileName)
-    
-    //console.log(res)
+    const uploadUrl = await _getUploadUrl(lwConfig, file);
 
-    if (res.status === 201) {
+    if (uploadUrl) {
 
-      return fileName
-      //console.log(res)
-      
+      const fmdata = new FormData();
+      fmdata.append('resourceName', file.name);
+      fmdata.append('FileData', file.data, {
+        filename: file.name,
+      });
+
+      const response = await axios.post(uploadUrl,
+        fmdata,
+        {
+          headers: {
+            ...fmdata.getHeaders(),
+            Authorization: `Bearer ${lwConfig.accessToken}`,
+          },
+        }
+      );
+
+      return response.data;
+
     } else {
-
-      return console.log("error", res.text)
+    
+      throw 'no valid upload url';
 
     }
 
+
   } catch (err) {
 
-    return console.log("Error", err.response.text)
+    throw err;
 
   }
   
 }
+
+// get upload url
+const _getUploadUrl = async (lwConfig, file) => {
+
+  try {
+
+    const response = await axios.post(
+      `https://www.worksapis.com/v1.0/sharedrives/${lwConfig.sharedriveId}/files/${lwConfig.fileId}`,
+      {
+        fileName: file.name,
+        fileSize: file.data.length,
+        overwrite: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${lwConfig.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    return response.data.uploadUrl;
+
+  } catch (err) {
+
+    throw err;
+
+  }
+
+}
+
 
 module.exports = {
   save
